@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Vault — 100% Offline, Permanent, Anti-Scam QR Code Studio</title>
-  <meta name="description" content="The privacy-first offline QR code studio. Static permanent QR codes with no expiration dates, no redirects, SVG vector export, bulk batch generation, and offline scanner.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📱</text></svg>">
+  <title>QR Vault — Permanent Wi-Fi & QR Studio</title>
+  <meta name="description" content="Instant, simple, permanent Wi-Fi & QR code generator. 100% offline, zero redirects, never expires.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📶</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -16,9 +16,6 @@
             brandGreen: '#10b981',
             brandBlue: '#2563eb',
             brandCyan: '#06b6d4',
-            brandPurple: '#8b5cf6',
-            brandPink: '#ec4899',
-            brandAmber: '#f59e0b',
             appDark: '#080b12',
             panelDark: '#0f1524',
             cardDark: '#172036',
@@ -39,7 +36,6 @@
     ::-webkit-scrollbar-track { background: #080b12; }
     ::-webkit-scrollbar-thumb { background: #263450; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #10b981; }
-    .drop-active { border-color: #10b981 !important; background-color: rgba(16, 185, 129, 0.08) !important; }
   </style>
 </head>
 <body class="bg-appDark text-slate-100 font-sans min-h-screen flex flex-col selection:bg-brandGreen selection:text-black">
@@ -82,317 +78,224 @@ jszip/dist/jszip.min.js:
 
   <!-- Header -->
   <header class="bg-panelDark border-b border-borderDark px-4 py-3 sticky top-0 z-40 shadow-md no-print">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
       
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brandGreen via-brandCyan to-brandBlue flex items-center justify-center text-white text-xl shadow-lg shadow-brandGreen/20">
-          📱
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brandGreen to-brandCyan flex items-center justify-center text-white text-lg shadow-md shadow-brandGreen/20">
+          📶
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-black text-lg tracking-tight text-white">QR VAULT PRO</h1>
+            <h1 class="font-extrabold text-base tracking-tight text-white">QR VAULT</h1>
             <span class="text-[10px] px-2 py-0.5 rounded-full bg-brandGreen/20 text-brandGreen border border-brandGreen/40 font-bold uppercase tracking-wider">
-              100% Offline • Permanent
+              Permanent • No Expiration
             </span>
           </div>
-          <p class="text-[11px] text-slate-400">Zero Redirects • Zero Subscriptions • True Vector SVG • Bulk Generator • Offline Scanner</p>
+          <p class="text-[11px] text-slate-400">Direct Connection • 100% Offline • Zero Redirects</p>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="flex items-center bg-cardDark/80 p-1 rounded-xl border border-borderDark text-xs font-bold gap-1">
-        <button onclick="switchAppTab('studio')" id="tab-app-studio" class="px-3 py-1.5 rounded-lg bg-brandGreen text-black transition shadow">
-          🎨 QR Studio
+      <!-- Mode Selector: Simple Wi-Fi vs Web Link vs Pro Studio -->
+      <nav class="flex items-center bg-cardDark/90 p-1 rounded-xl border border-borderDark text-xs font-bold gap-1">
+        <button onclick="setSimpleMode('wifi')" id="nav-mode-wifi" class="px-3 py-1.5 rounded-lg bg-brandGreen text-black transition shadow flex items-center gap-1.5">
+          <span>📶</span> Wi-Fi Card
         </button>
-        <button onclick="switchAppTab('bulk')" id="tab-app-bulk" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">
-          ⚡ Bulk Generator
+        <button onclick="setSimpleMode('url')" id="nav-mode-url" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center gap-1.5">
+          <span>🌐</span> Website Link
         </button>
-        <button onclick="switchAppTab('scanner')" id="tab-app-scanner" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition">
-          🔍 Offline Scanner
+        <button onclick="setSimpleMode('pro')" id="nav-mode-pro" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center gap-1.5">
+          <span>⚙️</span> All Types & Tools
         </button>
       </nav>
-
-      <!-- GitHub Link -->
-      <div class="hidden sm:flex items-center gap-3 text-xs">
-        <a href="https://github.com/willmakesrandomshit/qr-vault" target="_blank" class="px-3 py-1.5 rounded-lg bg-cardDark border border-borderDark hover:border-slate-400 text-slate-200 transition flex items-center gap-1.5">
-          <span>⭐</span> GitHub Repo
-        </a>
-      </div>
 
     </div>
   </header>
 
-  <!-- ======================================================== -->
-  <!-- TAB 1: QR STUDIO (CREATOR & CUSTOMIZER) -->
-  <!-- ======================================================== -->
-  <main id="view-studio" class="max-w-7xl mx-auto w-full flex-1 p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto w-full flex-1 p-4 sm:p-6 no-print space-y-6">
 
-    <!-- Left Controls (7 cols) -->
-    <div class="lg:col-span-7 space-y-6">
-
-      <!-- 1. Payload Type Selection -->
-      <div class="bg-panelDark border border-borderDark rounded-2xl p-4 sm:p-5 shadow-sm">
-        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">1. Select Payload Type</div>
-        
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
-          <button onclick="setQrType('url')" id="tab-url" class="p-2.5 rounded-xl border border-borderDark bg-brandGreen text-black flex items-center justify-center gap-1.5 transition">
-            <span>🌐</span> Website URL
-          </button>
-          <button onclick="setQrType('wifi')" id="tab-wifi" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>📶</span> Wi-Fi Login
-          </button>
-          <button onclick="setQrType('vcard')" id="tab-vcard" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>📇</span> vCard Contact
-          </button>
-          <button onclick="setQrType('text')" id="tab-text" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>📝</span> Plain Text
-          </button>
-          <button onclick="setQrType('email')" id="tab-email" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>✉️</span> Email Send
-          </button>
-          <button onclick="setQrType('phone')" id="tab-phone" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>📞</span> Phone Call
-          </button>
-          <button onclick="setQrType('sms')" id="tab-sms" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>💬</span> SMS Message
-          </button>
-          <button onclick="setQrType('crypto')" id="tab-crypto" class="p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-            <span>₿</span> Crypto Address
-          </button>
-        </div>
+    <!-- Auto-Detected Banner (Appears if auto-detected from OS / URL / local storage) -->
+    <div id="auto-detect-banner" class="hidden p-3 rounded-xl bg-brandGreen/10 border border-brandGreen/40 flex items-center justify-between text-xs text-brandGreen font-medium">
+      <div class="flex items-center gap-2">
+        <span class="text-base">✨</span>
+        <span>Auto-loaded Wi-Fi network: <strong id="detected-ssid-name" class="font-bold underline text-white"></strong></span>
       </div>
+      <span class="text-[10px] px-2 py-0.5 rounded bg-brandGreen/20 text-brandGreen uppercase font-bold">Live Synced</span>
+    </div>
 
-      <!-- 2. Payload Form -->
-      <div class="bg-panelDark border border-borderDark rounded-2xl p-5 shadow-sm space-y-4">
-        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Configure Destination</div>
+    <!-- Core Grid: 2 Columns (Inputs Left, Live Card Right) -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-        <!-- URL Form -->
-        <div id="form-url" class="space-y-2">
-          <label class="block text-xs font-bold text-slate-300">Target Website URL:</label>
-          <input type="url" id="inp-url" oninput="updateQr()" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none" value="https://willmakesrandomshit.github.io/qr-vault/" placeholder="https://mywebsite.com">
-          <div class="flex items-center gap-1.5 text-[11px] text-brandGreen">
-            <span>✅</span> Permanent direct link. Never expires, zero middleman redirect servers.
-          </div>
-        </div>
-
-        <!-- Wi-Fi Form -->
-        <div id="form-wifi" class="hidden space-y-3">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="block text-xs font-bold text-slate-300">Network Name (SSID):</label>
-              <input type="text" id="inp-wifi-ssid" oninput="updateQr()" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl px-3.5 py-2 text-xs text-white" value="CoffeeShop_Guest_5G">
+      <!-- Left Column: Simple Inputs (7 cols) -->
+      <div class="md:col-span-7 space-y-5">
+        
+        <!-- ======================= -->
+        <!-- MODE 1: WI-FI INPUTS -->
+        <!-- ======================= -->
+        <div id="section-wifi" class="bg-panelDark border border-borderDark rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-borderDark/60 pb-3">
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <span>📶</span> Instant Wi-Fi QR Card
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">Guests just point their iPhone/Android camera to join instantly without typing passwords.</p>
             </div>
-            <div class="space-y-1">
-              <label class="block text-xs font-bold text-slate-300">Security Encryption:</label>
-              <select id="inp-wifi-sec" onchange="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white">
-                <option value="WPA">WPA/WPA2/WPA3 (Standard)</option>
+          </div>
+
+          <!-- Wi-Fi Name (SSID) -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <label class="font-bold text-slate-200">Wi-Fi Network Name (SSID):</label>
+              <button onclick="promptAutoDetectHelp()" class="text-brandCyan hover:underline text-[11px] font-bold">
+                ⚡ Auto-Detect Help
+              </button>
+            </div>
+            <input type="text" id="wifi-ssid" oninput="onWifiChanged()" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl px-3.5 py-2.5 text-sm text-white font-medium focus:outline-none transition" placeholder="e.g. Home_Network_5G">
+          </div>
+
+          <!-- Wi-Fi Password -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <label class="font-bold text-slate-200">Wi-Fi Password:</label>
+              <button onclick="togglePasswordVisibility()" class="text-slate-400 hover:text-white text-[11px]">
+                <span id="pw-vis-icon">👁️</span> <span id="pw-vis-text">Show Password</span>
+              </button>
+            </div>
+            <input type="password" id="wifi-pw" oninput="onWifiChanged()" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:outline-none transition" placeholder="Enter password (leave blank if open network)">
+          </div>
+
+          <!-- Security Type Dropdown -->
+          <div class="grid grid-cols-2 gap-3 pt-1 text-xs">
+            <div>
+              <label class="block text-slate-400 font-bold mb-1">Encryption:</label>
+              <select id="wifi-sec" onchange="onWifiChanged()" class="w-full bg-appDark border border-borderDark rounded-lg px-2.5 py-2 text-xs text-white">
+                <option value="WPA" selected>WPA/WPA2/WPA3 (Standard)</option>
                 <option value="WEP">WEP</option>
                 <option value="nopass">None (Open Network)</option>
               </select>
             </div>
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Wi-Fi Password:</label>
-            <input type="text" id="inp-wifi-pw" oninput="updateQr()" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl px-3.5 py-2 text-xs text-white" value="espresso1234">
-          </div>
-          <div class="flex items-center gap-2 text-xs">
-            <input type="checkbox" id="inp-wifi-hidden" onchange="updateQr()" class="rounded text-brandGreen">
-            <label for="inp-wifi-hidden" class="text-slate-400 cursor-pointer">Hidden Network (Don't broadcast SSID)</label>
-          </div>
-        </div>
-
-        <!-- vCard Form -->
-        <div id="form-vcard" class="hidden space-y-3">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="block text-xs font-bold text-slate-300">Full Name:</label>
-              <input type="text" id="inp-vcard-name" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="Alex Morgan">
-            </div>
-            <div class="space-y-1">
-              <label class="block text-xs font-bold text-slate-300">Company / Organization:</label>
-              <input type="text" id="inp-vcard-org" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="Apex Studios">
-            </div>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="block text-xs font-bold text-slate-300">Phone Number:</label>
-              <input type="tel" id="inp-vcard-tel" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="+1 (555) 019-2834">
-            </div>
-            <div class="space-y-1">
-              <label class="block text-xs font-bold text-slate-300">Email Address:</label>
-              <input type="email" id="inp-vcard-email" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="alex@apexstudios.com">
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Website URL:</label>
-            <input type="url" id="inp-vcard-url" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="https://apexstudios.com">
-          </div>
-        </div>
-
-        <!-- Plain Text Form -->
-        <div id="form-text" class="hidden space-y-2">
-          <label class="block text-xs font-bold text-slate-300">Text Message or Notes:</label>
-          <textarea id="inp-text" oninput="updateQr()" rows="4" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl p-3 text-xs text-white" placeholder="Type any text, memo, code or secret message..."></textarea>
-        </div>
-
-        <!-- Email Form -->
-        <div id="form-email" class="hidden space-y-3">
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Recipient Email:</label>
-            <input type="email" id="inp-email-to" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="support@example.com">
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Subject Line:</label>
-            <input type="text" id="inp-email-sub" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="Inquiry">
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Email Body:</label>
-            <textarea id="inp-email-body" oninput="updateQr()" rows="2" class="w-full bg-appDark border border-borderDark rounded-xl p-2.5 text-xs text-white"></textarea>
-          </div>
-        </div>
-
-        <!-- Phone Form -->
-        <div id="form-phone" class="hidden space-y-2">
-          <label class="block text-xs font-bold text-slate-300">Phone Number to Call:</label>
-          <input type="tel" id="inp-phone" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2.5 text-xs text-white" value="+15551234567">
-        </div>
-
-        <!-- SMS Form -->
-        <div id="form-sms" class="hidden space-y-3">
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Send SMS To:</label>
-            <input type="tel" id="inp-sms-to" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="+15551234567">
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Pre-filled Message:</label>
-            <input type="text" id="inp-sms-msg" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="CONFIRM">
-          </div>
-        </div>
-
-        <!-- Crypto Form -->
-        <div id="form-crypto" class="hidden space-y-3">
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Coin Type:</label>
-            <select id="inp-crypto-type" onchange="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white">
-              <option value="bitcoin">Bitcoin (BTC)</option>
-              <option value="ethereum">Ethereum (ETH)</option>
-              <option value="solana">Solana (SOL)</option>
-            </select>
-          </div>
-          <div class="space-y-1">
-            <label class="block text-xs font-bold text-slate-300">Wallet Public Address:</label>
-            <input type="text" id="inp-crypto-addr" oninput="updateQr()" class="w-full bg-appDark border border-borderDark rounded-xl px-3.5 py-2 text-xs text-white" value="bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq">
-          </div>
-        </div>
-
-      </div>
-
-      <!-- 3. Styling, Dot Shapes & Gradients -->
-      <div class="bg-panelDark border border-borderDark rounded-2xl p-5 shadow-sm space-y-4">
-        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">3. Custom Styling & Gradients</div>
-
-        <!-- Dot Style Selector -->
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1.5">Dot Geometry:</label>
-          <div class="grid grid-cols-3 gap-2 text-xs">
-            <button onclick="setDotStyle('square')" id="dot-square" class="p-2 rounded-xl border border-brandGreen bg-brandGreen/20 text-brandGreen font-bold">Square (Standard)</button>
-            <button onclick="setDotStyle('rounded')" id="dot-rounded" class="p-2 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white">Rounded Smooth</button>
-            <button onclick="setDotStyle('dots')" id="dot-dots" class="p-2 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white">Circular Dots</button>
-          </div>
-        </div>
-
-        <!-- Color Mode & Gradient Presets -->
-        <div class="space-y-2 pt-2 border-t border-borderDark/60">
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-slate-300">Color Palette:</span>
-            <div class="flex gap-1.5">
-              <button onclick="applyPreset('#000000', '#000000', '#ffffff')" class="w-5 h-5 rounded-full bg-black border border-white" title="Classic Mono"></button>
-              <button onclick="applyPreset('#06b6d4', '#ec4899', '#ffffff')" class="w-5 h-5 rounded-full bg-gradient-to-r from-cyan-400 to-pink-500" title="Cyberpunk"></button>
-              <button onclick="applyPreset('#059669', '#2563eb', '#ffffff')" class="w-5 h-5 rounded-full bg-gradient-to-r from-emerald-600 to-blue-600" title="Emerald Ocean"></button>
-              <button onclick="applyPreset('#7c3aed', '#db2777', '#ffffff')" class="w-5 h-5 rounded-full bg-gradient-to-r from-violet-600 to-pink-600" title="Royal Sunset"></button>
+            <div class="flex items-center pt-5">
+              <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                <input type="checkbox" id="wifi-hidden" onchange="onWifiChanged()" class="rounded text-brandGreen">
+                <span>Hidden Network</span>
+              </label>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-            <div>
-              <label class="block text-slate-400 mb-1">Color 1 (Start):</label>
-              <input type="color" id="qr-color-dark" value="#000000" onchange="updateQr()" class="w-full h-8 rounded border border-borderDark bg-appDark cursor-pointer p-0.5">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Color 2 (Gradient End):</label>
-              <input type="color" id="qr-color-dark2" value="#000000" onchange="updateQr()" class="w-full h-8 rounded border border-borderDark bg-appDark cursor-pointer p-0.5">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Background:</label>
-              <input type="color" id="qr-color-light" value="#ffffff" onchange="updateQr()" class="w-full h-8 rounded border border-borderDark bg-appDark cursor-pointer p-0.5">
-            </div>
+          <div class="text-[11px] text-slate-400 pt-2 flex items-center gap-1.5 border-t border-borderDark/60">
+            <span class="text-brandGreen">🔒</span>
+            <span>Saved in your browser RAM only. Never sent to any cloud server.</span>
           </div>
         </div>
 
-        <!-- Center Logo / Icon -->
-        <div class="pt-2 border-t border-borderDark/60">
-          <label class="block text-xs font-bold text-slate-300 mb-2">Center Icon / Brand Logo (Optional):</label>
-          <div class="flex flex-wrap items-center gap-2 text-xs">
-            <button onclick="setCenterIcon('none')" id="icon-none" class="px-2.5 py-1.5 rounded-lg border border-brandGreen bg-brandGreen/20 text-brandGreen font-bold">None</button>
-            <button onclick="setCenterIcon('wifi')" id="icon-wifi" class="px-2.5 py-1.5 rounded-lg border border-borderDark bg-cardDark text-slate-300 hover:text-white">📶 Wi-Fi</button>
-            <button onclick="setCenterIcon('link')" id="icon-link" class="px-2.5 py-1.5 rounded-lg border border-borderDark bg-cardDark text-slate-300 hover:text-white">🌐 Web</button>
-            <button onclick="setCenterIcon('phone')" id="icon-phone" class="px-2.5 py-1.5 rounded-lg border border-borderDark bg-cardDark text-slate-300 hover:text-white">📞 Phone</button>
-            <button onclick="setCenterIcon('star')" id="icon-star" class="px-2.5 py-1.5 rounded-lg border border-borderDark bg-cardDark text-slate-300 hover:text-white">⭐ Star</button>
-            <button onclick="setCenterIcon('btc')" id="icon-btc" class="px-2.5 py-1.5 rounded-lg border border-borderDark bg-cardDark text-slate-300 hover:text-white">₿ Crypto</button>
-            <label class="px-3 py-1.5 rounded-lg border border-dashed border-slate-500 hover:border-brandGreen cursor-pointer text-slate-300 text-xs flex items-center gap-1.5">
-              <span>📁</span> Custom Logo (PNG/SVG)
-              <input type="file" id="inp-custom-logo" accept="image/*" class="hidden" onchange="handleCustomLogoUpload(event)">
-            </label>
+        <!-- ======================= -->
+        <!-- MODE 2: WEBSITE LINK -->
+        <!-- ======================= -->
+        <div id="section-url" class="hidden bg-panelDark border border-borderDark rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+          <div class="border-b border-borderDark/60 pb-3">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🌐</span> Website URL
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Permanent direct link. Never expires, zero middleman redirect servers.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-200">Destination URL:</label>
+            <input type="url" id="simple-url" oninput="onUrlChanged()" class="w-full bg-appDark border border-borderDark focus:border-brandGreen rounded-xl px-3.5 py-2.5 text-sm text-white font-medium focus:outline-none transition" value="https://willmakesrandomshit.github.io/qr-vault/" placeholder="https://example.com">
           </div>
         </div>
 
-      </div>
-
-    </div>
-
-    <!-- Right Preview & Export Actions (5 cols) -->
-    <div class="lg:col-span-5 space-y-6">
-      
-      <div class="bg-panelDark border border-borderDark rounded-2xl p-6 shadow-sm flex flex-col items-center justify-between sticky top-20">
-        
-        <div class="w-full flex items-center justify-between border-b border-borderDark pb-3 mb-4">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Live Scannable Output</span>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-brandGreen/20 text-brandGreen font-bold">Standard ISO-18004</span>
-        </div>
-
-        <!-- Canvas Container -->
-        <div class="p-4 rounded-2xl bg-white shadow-2xl flex items-center justify-center max-w-[340px] w-full aspect-square relative group">
-          <canvas id="qr-canvas" width="600" height="600" class="max-w-full max-h-full rounded"></canvas>
-        </div>
-
-        <!-- Raw Payload Preview -->
-        <div class="w-full mt-4 text-[11px] text-slate-400 bg-appDark border border-borderDark rounded-xl p-3 font-mono break-all max-h-20 overflow-y-auto">
-          <span class="text-slate-500">Payload:</span> <span id="payload-preview">https://willmakesrandomshit.github.io/qr-vault/</span>
-        </div>
-
-        <!-- Primary Export Buttons -->
-        <div class="w-full space-y-2.5 mt-5">
-          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-            <button onclick="downloadPng(1200)" class="py-3 rounded-xl bg-brandGreen text-black font-extrabold hover:bg-emerald-400 transition flex items-center justify-center gap-1.5 shadow-lg shadow-brandGreen/20">
-              <span>📥</span> High-Res PNG
-            </button>
-            <button onclick="downloadSvg()" class="py-3 rounded-xl bg-brandCyan text-black font-extrabold hover:bg-cyan-400 transition flex items-center justify-center gap-1.5 shadow-lg shadow-brandCyan/20">
-              <span>📐</span> Vector SVG
-            </button>
+        <!-- ======================= -->
+        <!-- MODE 3: ALL TYPES & PRO -->
+        <!-- ======================= -->
+        <div id="section-pro" class="hidden bg-panelDark border border-borderDark rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Select Other Payload Type:</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
+            <button onclick="setProType('vcard')" id="pro-tab-vcard" class="p-2 rounded-xl bg-cardDark border border-borderDark text-slate-300 hover:text-white">📇 vCard</button>
+            <button onclick="setProType('text')" id="pro-tab-text" class="p-2 rounded-xl bg-cardDark border border-borderDark text-slate-300 hover:text-white">📝 Text</button>
+            <button onclick="setProType('email')" id="pro-tab-email" class="p-2 rounded-xl bg-cardDark border border-borderDark text-slate-300 hover:text-white">✉️ Email</button>
+            <button onclick="setProType('phone')" id="pro-tab-phone" class="p-2 rounded-xl bg-cardDark border border-borderDark text-slate-300 hover:text-white">📞 Phone</button>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
-            <button onclick="downloadPng(2400)" class="py-2.5 rounded-xl bg-cardDark border border-borderDark hover:border-slate-400 text-slate-200 transition">
-              🖨️ Ultra 2400px Print
-            </button>
-            <button onclick="copyQrImageToClipboard()" id="btn-copy-img" class="py-2.5 rounded-xl bg-cardDark border border-borderDark hover:border-brandGreen text-slate-200 hover:text-brandGreen transition">
-              📋 Copy Image
-            </button>
+          <!-- Dynamic Pro Form -->
+          <div id="pro-form-container" class="pt-3">
+            <textarea id="pro-text-input" oninput="onProChanged()" rows="4" class="w-full bg-appDark border border-borderDark rounded-xl p-3 text-xs text-white" placeholder="Type text or custom payload..."></textarea>
           </div>
+        </div>
 
-          <button onclick="openPrintFlyerModal()" class="w-full py-2.5 rounded-xl bg-brandBlue text-white font-bold text-xs hover:bg-blue-600 transition flex items-center justify-center gap-2 shadow">
-            📄 Generate Printable Table Sign / Flyer
+        <!-- Optional Collapsible Styling -->
+        <div class="bg-panelDark border border-borderDark rounded-2xl p-4 shadow-sm">
+          <button onclick="toggleStylingDrawer()" class="w-full flex items-center justify-between text-xs font-bold text-slate-300 hover:text-white">
+            <span class="flex items-center gap-2"><span>🎨</span> Custom Colors & Dot Styling (Optional)</span>
+            <span id="styling-drawer-icon">▼</span>
           </button>
+          
+          <div id="styling-drawer" class="hidden pt-4 mt-3 border-t border-borderDark/60 space-y-4 text-xs">
+            <!-- Dot Style -->
+            <div>
+              <span class="block font-bold text-slate-400 mb-1.5">Dot Style:</span>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setDotStyle('square')" id="dot-square" class="p-2 rounded-lg border border-brandGreen bg-brandGreen/20 text-brandGreen font-bold">Square</button>
+                <button onclick="setDotStyle('rounded')" id="dot-rounded" class="p-2 rounded-lg border border-borderDark bg-cardDark text-slate-300">Rounded</button>
+                <button onclick="setDotStyle('dots')" id="dot-dots" class="p-2 rounded-lg border border-borderDark bg-cardDark text-slate-300">Circular</button>
+              </div>
+            </div>
+
+            <!-- Colors -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-400 mb-1 font-bold">QR Code Color:</label>
+                <input type="color" id="qr-color-dark" value="#000000" onchange="renderActiveQr()" class="w-full h-8 rounded border border-borderDark bg-appDark cursor-pointer p-0.5">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1 font-bold">Background:</label>
+                <input type="color" id="qr-color-light" value="#ffffff" onchange="renderActiveQr()" class="w-full h-8 rounded border border-borderDark bg-appDark cursor-pointer p-0.5">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Live Presentation Card & Export (5 cols) -->
+      <div class="md:col-span-5 space-y-4">
+        
+        <!-- The Live Physical Card Preview -->
+        <div class="bg-panelDark border border-borderDark rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center">
+          
+          <!-- Card Header Label -->
+          <div id="card-label-badge" class="px-3 py-1 rounded-full bg-brandGreen/20 text-brandGreen text-xs font-extrabold uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <span>📶</span> CONNECT TO WI-FI
+          </div>
+
+          <h3 id="card-title-text" class="text-lg font-black text-white tracking-tight mb-1">
+            Home_Network_5G
+          </h3>
+          <p id="card-subtitle-text" class="text-xs text-slate-400 mb-4 font-mono">
+            Scan with phone camera to join
+          </p>
+
+          <!-- High-Contrast Scannable Canvas -->
+          <div class="bg-white p-4 rounded-2xl shadow-xl flex items-center justify-center w-full max-w-[280px] aspect-square">
+            <canvas id="qr-canvas" width="600" height="600" class="w-full h-full rounded"></canvas>
+          </div>
+
+          <!-- Instant Action Buttons -->
+          <div class="w-full space-y-2 mt-5">
+            <button onclick="downloadPng(1200)" class="w-full py-3 rounded-xl bg-brandGreen text-black font-extrabold text-xs hover:bg-emerald-400 transition flex items-center justify-center gap-2 shadow-lg shadow-brandGreen/20">
+              <span>📥</span> Download Wi-Fi Sign (PNG)
+            </button>
+
+            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+              <button onclick="triggerPrintFlyer()" class="py-2.5 rounded-xl bg-brandBlue text-white hover:bg-blue-600 transition flex items-center justify-center gap-1.5 shadow">
+                <span>🖨️</span> Print Stand
+              </button>
+              <button onclick="copyQrImageToClipboard()" id="btn-copy-img" class="py-2.5 rounded-xl bg-cardDark border border-borderDark hover:border-brandGreen text-slate-200 hover:text-brandGreen transition">
+                📋 Copy Image
+              </button>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -401,177 +304,58 @@ jszip/dist/jszip.min.js:
 
   </main>
 
-
-  <!-- ======================================================== -->
-  <!-- TAB 2: BULK / BATCH GENERATOR -->
-  <!-- ======================================================== -->
-  <section id="view-bulk" class="hidden max-w-7xl mx-auto w-full flex-1 p-4 sm:p-6 space-y-6 no-print">
-    
-    <div class="bg-panelDark border border-borderDark rounded-2xl p-6 shadow-sm">
-      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          <h2 class="text-xl font-bold text-white flex items-center gap-2">
-            <span>⚡</span> Bulk Batch QR Code Generator
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">
-            Generate dozens or hundreds of QR codes at once. Download all as a single organized ZIP archive with custom filenames.
-          </p>
-        </div>
-
-        <button onclick="generateBulkQrs()" class="px-5 py-2.5 rounded-xl bg-brandGreen text-black font-extrabold text-xs hover:bg-emerald-400 transition shadow">
-          🚀 Generate All QR Codes
-        </button>
-      </div>
-
-      <div class="space-y-2 mb-6">
-        <label class="block text-xs font-bold text-slate-300">Paste List of Items (One item or URL per line, or Name,URL for custom filenames):</label>
-        <textarea id="bulk-input" rows="7" class="w-full bg-appDark border border-borderDark rounded-xl p-3 text-xs text-white font-mono focus:outline-none" placeholder="table-01,https://restaurant.com/menu?table=1
-table-02,https://restaurant.com/menu?table=2
-table-03,https://restaurant.com/menu?table=3
-wifi-guest,WIFI:S:GuestWiFi;T:WPA;P:guest123;;"></textarea>
-      </div>
-
-      <!-- Bulk Actions Bar -->
-      <div id="bulk-actions-bar" class="hidden flex items-center justify-between border-t border-borderDark pt-4 mb-4">
-        <div class="text-xs text-slate-300">Generated: <span id="bulk-count" class="font-bold text-brandGreen">0</span> QR codes</div>
-        <button onclick="downloadBulkZip()" id="btn-download-bulk-zip" class="px-4 py-2 rounded-xl bg-brandBlue text-white font-bold text-xs hover:bg-blue-600 transition flex items-center gap-1.5 shadow">
-          📦 Download All as ZIP Archive
-        </button>
-      </div>
-
-      <!-- Bulk Results Grid -->
-      <div id="bulk-results-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-        <!-- Rendered dynamically -->
-      </div>
-    </div>
-
-  </section>
-
-
-  <!-- ======================================================== -->
-  <!-- TAB 3: OFFLINE QR CODE SCANNER & DECODER -->
-  <!-- ======================================================== -->
-  <section id="view-scanner" class="hidden max-w-5xl mx-auto w-full flex-1 p-4 sm:p-6 space-y-6 no-print">
-    
-    <div class="bg-panelDark border border-borderDark rounded-2xl p-6 shadow-sm">
-      <div class="text-center max-w-xl mx-auto mb-6">
-        <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center justify-center gap-2">
-          <span>🔍</span> Offline QR Code Scanner & Inspector
-        </h2>
-        <p class="text-xs text-slate-400 mt-1">
-          Scan QR codes using your webcam or drag & drop any QR image file to verify its true payload without sending it to the cloud.
-        </p>
-      </div>
-
-      <!-- Scanner Tabs: File Upload vs Camera -->
-      <div class="flex justify-center gap-2 mb-6 text-xs font-bold">
-        <button onclick="setScannerMode('file')" id="btn-scan-file" class="px-4 py-2 rounded-xl bg-brandGreen text-black transition">
-          📁 Drop Image / File
-        </button>
-        <button onclick="setScannerMode('camera')" id="btn-scan-camera" class="px-4 py-2 rounded-xl bg-cardDark text-slate-300 hover:text-white transition">
-          📷 Webcam Scanner
-        </button>
-      </div>
-
-      <!-- File Drop Mode -->
-      <div id="scan-file-container">
-        <div id="scanner-dropzone" onclick="document.getElementById('scan-img-input').click()" class="border-2 border-dashed border-borderDark hover:border-brandGreen rounded-2xl p-8 text-center cursor-pointer transition bg-appDark/50 flex flex-col items-center justify-center min-h-[180px]">
-          <input type="file" id="scan-img-input" accept="image/*" class="hidden" onchange="handleScannerImage(event)">
-          <div class="text-3xl mb-2">📥</div>
-          <div class="font-bold text-xs text-white">Drop any QR code image here, or click to browse</div>
-          <div class="text-[11px] text-slate-500 mt-1">Supports PNG, JPG, WebP, SVG screenshots</div>
-        </div>
-      </div>
-
-      <!-- Camera Mode -->
-      <div id="scan-camera-container" class="hidden flex flex-col items-center">
-        <div class="relative max-w-sm w-full rounded-2xl overflow-hidden border-2 border-brandGreen shadow-xl bg-black">
-          <video id="camera-video" playsinline class="w-full h-auto"></video>
-          <div class="absolute inset-0 border-2 border-brandGreen/40 pointer-events-none flex items-center justify-center">
-            <div class="w-48 h-48 border-2 border-dashed border-brandGreen rounded-xl animate-pulse"></div>
-          </div>
-        </div>
-        <button onclick="stopCamera()" class="mt-3 px-3.5 py-1.5 rounded-lg bg-red-950/80 border border-brandRed text-brandRed text-xs font-bold">
-          Stop Camera
-        </button>
-      </div>
-
-      <!-- Decoded Result Box -->
-      <div id="scan-result-box" class="hidden mt-6 p-5 rounded-xl bg-cardDark border border-brandGreen/40 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-brandGreen flex items-center gap-1.5">
-            <span>✅</span> Successfully Decoded Offline
-          </span>
-          <button onclick="copyDecodedText()" class="text-xs px-2.5 py-1 rounded bg-appDark border border-borderDark hover:text-white text-slate-300">
-            📋 Copy
-          </button>
-        </div>
-
-        <div class="text-xs font-mono text-white bg-appDark p-3 rounded-lg break-all select-all border border-borderDark" id="decoded-payload-text">
-          <!-- Injected -->
-        </div>
-
-        <div id="decoded-action-btn" class="pt-1">
-          <!-- Injected dynamic open link button if URL -->
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- ============================================== -->
-  <!-- MODAL: PRINTABLE FLYER GENERATOR (A4 / TABLE TENT) -->
-  <!-- ============================================== -->
-  <div id="modal-flyer" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-panelDark border border-borderDark rounded-2xl p-6 max-w-xl w-full shadow-2xl space-y-4 text-center">
+  <!-- Auto-Detect Help Modal -->
+  <div id="modal-autodetect" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-panelDark border border-borderDark rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-borderDark pb-3">
-        <h3 class="text-base font-bold text-white">Printable Table Sign / Flyer Generator</h3>
-        <button onclick="closePrintFlyerModal()" class="text-slate-400 hover:text-white text-lg">✕</button>
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <span>⚡</span> How Auto-Detect Works
+        </h3>
+        <button onclick="closeAutoDetectHelp()" class="text-slate-400 hover:text-white text-lg">✕</button>
       </div>
 
-      <div class="space-y-3 text-left text-xs">
-        <div>
-          <label class="block text-slate-300 font-bold mb-1">Headline Text:</label>
-          <input type="text" id="flyer-headline" value="SCAN TO CONNECT" class="w-full bg-appDark border border-borderDark rounded-lg px-3 py-2 text-white">
-        </div>
-        <div>
-          <label class="block text-slate-300 font-bold mb-1">Subtitle / Instructions:</label>
-          <input type="text" id="flyer-subtitle" value="Point your phone camera here to access instantly" class="w-full bg-appDark border border-borderDark rounded-lg px-3 py-2 text-white">
+      <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+        <p>
+          For security, web browsers block websites from silently sniffing your local Wi-Fi passwords.
+        </p>
+        <p class="font-bold text-brandGreen">
+          🚀 Instant 1-Click Auto-Detect via Desktop Launcher:
+        </p>
+        <p>
+          If you download the free <strong>Windows Desktop Package</strong>, it includes an automatic detector that queries <code class="text-brandCyan">netsh wlan show interfaces</code> and opens QR Vault with your actual Wi-Fi already loaded!
+        </p>
+        <div class="p-3 rounded-xl bg-appDark border border-borderDark space-y-1">
+          <div class="text-[11px] font-bold text-slate-400">Or pass your Wi-Fi via URL on any device:</div>
+          <code class="text-[11px] text-brandGreen break-all">https://willmakesrandomshit.github.io/qr-vault/?ssid=MyNetwork&pw=MyPassword</code>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closePrintFlyerModal()" class="px-4 py-2 rounded-xl bg-cardDark border border-borderDark text-xs text-slate-300">Cancel</button>
-        <button onclick="triggerPrintFlyer()" class="px-5 py-2 rounded-xl bg-brandGreen text-black font-bold text-xs hover:bg-emerald-400">
-          🖨️ Print Now (or Save as PDF)
-        </button>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeAutoDetectHelp()" class="px-4 py-2 rounded-xl bg-brandGreen text-black font-bold text-xs">Got it</button>
       </div>
     </div>
   </div>
 
-  <!-- Dedicated Hidden Print Template for window.print() -->
+  <!-- Hidden Dedicated Print Layout for Table Sign -->
   <div id="print-area" class="hidden text-black bg-white p-12 min-h-screen flex flex-col items-center justify-center text-center">
-    <div class="border-4 border-black p-10 rounded-3xl max-w-lg w-full flex flex-col items-center">
-      <h1 id="p-headline" class="text-4xl font-black uppercase tracking-tight mb-2">SCAN TO CONNECT</h1>
-      <p id="p-subtitle" class="text-base text-gray-700 mb-8 font-medium">Point your phone camera here to access instantly</p>
-      <img id="p-img" class="w-72 h-72 border-2 border-gray-200 rounded-2xl p-2 mb-8" alt="QR Code">
-      <div class="text-xs text-gray-500 font-bold uppercase tracking-widest border-t border-gray-300 pt-4 w-full">
-        Permanent Static Link • No App Required
+    <div class="border-4 border-black p-10 rounded-3xl max-w-md w-full flex flex-col items-center">
+      <div class="text-2xl mb-2">📶</div>
+      <h1 class="text-3xl font-black uppercase tracking-tight mb-1" id="p-ssid">Home_Network_5G</h1>
+      <p class="text-sm text-gray-700 mb-6 font-medium">Point your camera to join Wi-Fi</p>
+      <img id="p-img" class="w-64 h-64 border-2 border-gray-200 rounded-2xl p-2 mb-6" alt="QR Code">
+      <div class="text-xs text-gray-600 font-mono border-t border-gray-300 pt-3 w-full" id="p-pw-line">
+        Password: <strong id="p-pw">espresso1234</strong>
       </div>
     </div>
   </div>
 
-  <!-- Application Controller -->
+  <!-- Logic Controller -->
   <script>
-    let currentAppTab = 'studio';
-    let currentType = 'url';
+    let currentMode = 'wifi';
     let currentDotStyle = 'square';
-    let currentCenterIcon = 'none';
-    let customLogoImg = null;
-    let bulkGeneratedBlobs = [];
+    let showPassword = false;
 
-    function showToast(msg, type = 'success') {
+    function showToast(msg) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = "bg-brandGreen text-black px-4 py-2.5 rounded-xl shadow-lg text-xs font-bold flex items-center gap-2 transition-all duration-300 translate-y-2 opacity-0";
@@ -584,17 +368,40 @@ wifi-guest,WIFI:S:GuestWiFi;T:WPA;P:guest123;;"></textarea>
       }, 2500);
     }
 
-    function switchAppTab(tab) {
-      currentAppTab = tab;
-      ['studio', 'bulk', 'scanner'].forEach(t => {
-        document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
-        const btn = document.getElementById(`tab-app-${t}`);
-        btn.className = t === tab
-          ? "px-3 py-1.5 rounded-lg bg-brandGreen text-black transition shadow"
-          : "px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition";
+    function setSimpleMode(mode) {
+      currentMode = mode;
+      ['wifi', 'url', 'pro'].forEach(m => {
+        document.getElementById(`section-${m}`).classList.toggle('hidden', m !== mode);
+        const btn = document.getElementById(`nav-mode-${m}`);
+        btn.className = m === mode
+          ? "px-3 py-1.5 rounded-lg bg-brandGreen text-black transition shadow flex items-center gap-1.5"
+          : "px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center gap-1.5";
       });
 
-      if (tab !== 'scanner') stopCamera();
+      // Update Card Badge & Header
+      if (mode === 'wifi') {
+        document.getElementById('card-label-badge').innerHTML = '<span>📶</span> CONNECT TO WI-FI';
+      } else if (mode === 'url') {
+        document.getElementById('card-label-badge').innerHTML = '<span>🌐</span> VISIT WEBSITE';
+      } else {
+        document.getElementById('card-label-badge').innerHTML = '<span>📱</span> SCAN CODE';
+      }
+
+      renderActiveQr();
+    }
+
+    function togglePasswordVisibility() {
+      showPassword = !showPassword;
+      const inp = document.getElementById('wifi-pw');
+      inp.type = showPassword ? 'text' : 'password';
+      document.getElementById('pw-vis-icon').innerText = showPassword ? '🙈' : '👁️';
+      document.getElementById('pw-vis-text').innerText = showPassword ? 'Hide Password' : 'Show Password';
+    }
+
+    function toggleStylingDrawer() {
+      const drawer = document.getElementById('styling-drawer');
+      const isHidden = drawer.classList.toggle('hidden');
+      document.getElementById('styling-drawer-icon').innerText = isHidden ? '▼' : '▲';
     }
 
     function setDotStyle(style) {
@@ -602,295 +409,128 @@ wifi-guest,WIFI:S:GuestWiFi;T:WPA;P:guest123;;"></textarea>
       ['square', 'rounded', 'dots'].forEach(s => {
         const btn = document.getElementById(`dot-${s}`);
         btn.className = s === style
-          ? "p-2 rounded-xl border border-brandGreen bg-brandGreen/20 text-brandGreen font-bold"
-          : "p-2 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white";
+          ? "p-2 rounded-lg border border-brandGreen bg-brandGreen/20 text-brandGreen font-bold"
+          : "p-2 rounded-lg border border-borderDark bg-cardDark text-slate-300";
       });
-      updateQr();
+      renderActiveQr();
     }
 
-    function applyPreset(c1, c2, bg) {
-      document.getElementById('qr-color-dark').value = c1;
-      document.getElementById('qr-color-dark2').value = c2;
-      document.getElementById('qr-color-light').value = bg;
-      updateQr();
+    function promptAutoDetectHelp() {
+      document.getElementById('modal-autodetect').classList.remove('hidden');
     }
 
-    function setQrType(type) {
-      currentType = type;
-      ['url', 'wifi', 'vcard', 'text', 'email', 'phone', 'sms', 'crypto'].forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if (btn) {
-          btn.className = t === type 
-            ? "p-2.5 rounded-xl border border-borderDark bg-brandGreen text-black flex items-center justify-center gap-1.5 transition"
-            : "p-2.5 rounded-xl border border-borderDark bg-cardDark text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition";
-        }
-        const form = document.getElementById(`form-${t}`);
-        if (form) form.classList.toggle('hidden', t !== type);
-      });
-      updateQr();
+    function closeAutoDetectHelp() {
+      document.getElementById('modal-autodetect').classList.add('hidden');
     }
 
-    function setCenterIcon(icon) {
-      currentCenterIcon = icon;
-      ['none', 'wifi', 'link', 'phone', 'star', 'btc'].forEach(i => {
-        const btn = document.getElementById(`icon-${i}`);
-        if (btn) {
-          btn.className = i === icon
-            ? "px-2.5 py-1.5 rounded-lg border border-brandGreen bg-brandGreen/20 text-brandGreen font-bold"
-            : "px-2.5 py-1.5 rounded-lg border border-borderDark bg-cardDark text-slate-300 hover:text-white";
-        }
-      });
-      customLogoImg = null;
-      updateQr();
-    }
-
-    function handleCustomLogoUpload(e) {
-      if (e.target.files && e.target.files[0]) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            customLogoImg = img;
-            currentCenterIcon = 'custom';
-            updateQr();
-            showToast("Custom logo loaded into QR center!");
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-      }
-    }
-
-    function buildPayload() {
-      if (currentType === 'url') {
-        return document.getElementById('inp-url').value.trim() || 'https://willmakesrandomshit.github.io/qr-vault/';
-      } else if (currentType === 'wifi') {
-        const ssid = document.getElementById('inp-wifi-ssid').value.trim() || 'MyWiFi';
-        const pw = document.getElementById('inp-wifi-pw').value;
-        const sec = document.getElementById('inp-wifi-sec').value;
-        const hidden = document.getElementById('inp-wifi-hidden').checked ? 'H:true;' : '';
-        return `WIFI:S:${ssid};T:${sec};P:${pw};${hidden};`;
-      } else if (currentType === 'vcard') {
-        const name = document.getElementById('inp-vcard-name').value.trim() || 'Contact';
-        const org = document.getElementById('inp-vcard-org').value.trim();
-        const tel = document.getElementById('inp-vcard-tel').value.trim();
-        const email = document.getElementById('inp-vcard-email').value.trim();
-        const url = document.getElementById('inp-vcard-url').value.trim();
-        return `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nORG:${org}\nTEL:${tel}\nEMAIL:${email}\nURL:${url}\nEND:VCARD`;
-      } else if (currentType === 'text') {
-        return document.getElementById('inp-text').value.trim() || 'QR Vault Note';
-      } else if (currentType === 'email') {
-        const to = document.getElementById('inp-email-to').value.trim();
-        const sub = encodeURIComponent(document.getElementById('inp-email-sub').value.trim());
-        const body = encodeURIComponent(document.getElementById('inp-email-body').value.trim());
-        return `mailto:${to}?subject=${sub}&body=${body}`;
-      } else if (currentType === 'phone') {
-        return `tel:${document.getElementById('inp-phone').value.trim()}`;
-      } else if (currentType === 'sms') {
-        const to = document.getElementById('inp-sms-to').value.trim();
-        const msg = encodeURIComponent(document.getElementById('inp-sms-msg').value.trim());
-        return `SMSTO:${to}:${msg}`;
-      } else if (currentType === 'crypto') {
-        const coin = document.getElementById('inp-crypto-type').value;
-        const addr = document.getElementById('inp-crypto-addr').value.trim();
-        return `${coin}:${addr}`;
-      }
-      return 'https://willmakesrandomshit.github.io/qr-vault/';
-    }
-
-    /**
-     * Robust, Direct Matrix Renderer
-     * Never uses globalCompositeOperation which causes solid black boxes
-     */
-    function renderQrMatrixToCanvas(canvas, payload, options) {
-      const qr = QRCode.create(payload, { errorCorrectionLevel: options.ecl || 'H' });
-      const moduleCount = qr.modules.size;
-      const margin = 4;
-      const totalCount = moduleCount + margin * 2;
-      const cellSize = canvas.width / totalCount;
-      const ctx = canvas.getContext('2d');
-
-      // 1. Draw Clean Background
-      ctx.fillStyle = options.bg || '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // 2. Compute Fill Color / Gradient
-      let fillStyle = options.color1 || '#000000';
-      if (options.color2 && options.color2 !== options.color1) {
-        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        grad.addColorStop(0, options.color1);
-        grad.addColorStop(1, options.color2);
-        fillStyle = grad;
-      }
-      ctx.fillStyle = fillStyle;
-
-      // 3. Render Modules
-      for (let r = 0; r < moduleCount; r++) {
-        for (let c = 0; c < moduleCount; c++) {
-          if (qr.modules.get(r, c)) {
-            const x = (c + margin) * cellSize;
-            const y = (r + margin) * cellSize;
-
-            // Keep finder corner eyes solid square for standard compliance and scanning reliability
-            const isFinder = (r < 7 && c < 7) || (r < 7 && c >= moduleCount - 7) || (r >= moduleCount - 7 && c < 7);
-
-            if (isFinder || options.dotStyle === 'square') {
-              ctx.fillRect(x, y, cellSize + 0.6, cellSize + 0.6);
-            } else if (options.dotStyle === 'dots') {
-              ctx.beginPath();
-              ctx.arc(x + cellSize / 2, y + cellSize / 2, (cellSize / 2) * 0.9, 0, Math.PI * 2);
-              ctx.fill();
-            } else if (options.dotStyle === 'rounded') {
-              const rad = cellSize * 0.35;
-              ctx.beginPath();
-              if (ctx.roundRect) {
-                ctx.roundRect(x, y, cellSize, cellSize, rad);
-              } else {
-                ctx.rect(x, y, cellSize, cellSize);
-              }
-              ctx.fill();
-            }
-          }
-        }
-      }
-
-      // 4. Draw Center Icon / Logo if selected
-      if (options.centerIcon && options.centerIcon !== 'none') {
-        const iconBoxSize = canvas.width * 0.22;
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-
-        ctx.fillStyle = options.bg || '#ffffff';
-        ctx.beginPath();
-        ctx.arc(cx, cy, iconBoxSize * 0.58, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = options.color1 || '#000000';
-        ctx.lineWidth = Math.max(2, canvas.width * 0.008);
-        ctx.stroke();
-
-        if (options.centerIcon === 'custom' && options.customLogoImg) {
-          const imgSize = iconBoxSize * 0.72;
-          ctx.drawImage(options.customLogoImg, cx - imgSize / 2, cy - imgSize / 2, imgSize, imgSize);
-        } else {
-          const icons = {
-            wifi: '📶',
-            link: '🌐',
-            phone: '📞',
-            star: '⭐',
-            btc: '₿'
-          };
-          const char = icons[options.centerIcon] || '⭐';
-          ctx.fillStyle = options.color1 || '#000000';
-          ctx.font = `bold ${Math.floor(iconBoxSize * 0.52)}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(char, cx, cy + 2);
-        }
-      }
-    }
-
-    async function updateQr() {
-      const payload = buildPayload();
-      document.getElementById('payload-preview').innerText = payload;
-
-      const c1 = document.getElementById('qr-color-dark').value;
-      const c2 = document.getElementById('qr-color-dark2').value;
-      const bg = document.getElementById('qr-color-light').value;
-
-      const canvas = document.getElementById('qr-canvas');
-
+    function onWifiChanged() {
+      const ssid = document.getElementById('wifi-ssid').value.trim();
+      const pw = document.getElementById('wifi-pw').value;
+      
+      // Save locally so it automatically remembers on this device!
       try {
-        renderQrMatrixToCanvas(canvas, payload, {
-          ecl: 'H',
-          color1: c1,
-          color2: c2,
-          bg: bg,
-          dotStyle: currentDotStyle,
-          centerIcon: currentCenterIcon,
-          customLogoImg: customLogoImg
-        });
-      } catch (err) {
-        console.error("QR Code Generation Error:", err);
+        localStorage.setItem('qr_vault_wifi_ssid', ssid);
+        if (pw) localStorage.setItem('qr_vault_wifi_pw', pw);
+      } catch(e) {}
+
+      renderActiveQr();
+    }
+
+    function onUrlChanged() {
+      renderActiveQr();
+    }
+
+    function onProChanged() {
+      renderActiveQr();
+    }
+
+    function getActivePayload() {
+      if (currentMode === 'wifi') {
+        const ssid = document.getElementById('wifi-ssid').value.trim() || 'MyWiFi';
+        const pw = document.getElementById('wifi-pw').value;
+        const sec = document.getElementById('wifi-sec').value;
+        const hidden = document.getElementById('wifi-hidden').checked ? 'H:true;' : '';
+        return `WIFI:S:${ssid};T:${sec};P:${pw};${hidden};`;
+      } else if (currentMode === 'url') {
+        return document.getElementById('simple-url').value.trim() || 'https://github.com';
+      } else {
+        return document.getElementById('pro-text-input').value.trim() || 'QR Vault';
       }
     }
 
-    async function downloadPng(resolution = 1200) {
-      const payload = buildPayload();
-      const c1 = document.getElementById('qr-color-dark').value;
-      const c2 = document.getElementById('qr-color-dark2').value;
-      const bg = document.getElementById('qr-color-light').value;
-
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = resolution;
-      exportCanvas.height = resolution;
-
-      renderQrMatrixToCanvas(exportCanvas, payload, {
-        ecl: 'H',
-        color1: c1,
-        color2: c2,
-        bg: bg,
-        dotStyle: currentDotStyle,
-        centerIcon: currentCenterIcon,
-        customLogoImg: customLogoImg
-      });
-
-      const link = document.createElement('a');
-      link.download = `qr-vault-${Date.now()}-${resolution}px.png`;
-      link.href = exportCanvas.toDataURL('image/png');
-      link.click();
-      showToast(`Downloaded ${resolution}px High-Res PNG!`);
-    }
-
-    function downloadSvg() {
-      const payload = buildPayload();
-      const c1 = document.getElementById('qr-color-dark').value;
-      const c2 = document.getElementById('qr-color-dark2').value;
-      const bg = document.getElementById('qr-color-light').value;
-
+    function renderQrMatrix(canvas, payload, options) {
       const qr = QRCode.create(payload, { errorCorrectionLevel: 'H' });
       const size = qr.modules.size;
       const margin = 4;
       const total = size + margin * 2;
+      const cellSize = canvas.width / total;
+      const ctx = canvas.getContext('2d');
 
-      let defs = '';
-      let fillAttr = c1;
-      if (c2 !== c1) {
-        defs = `<defs><linearGradient id="qrGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs>`;
-        fillAttr = 'url(#qrGrad)';
-      }
+      ctx.fillStyle = options.bg || '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      let shapes = '';
+      ctx.fillStyle = options.fg || '#000000';
+
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
           if (qr.modules.get(r, c)) {
-            const x = c + margin;
-            const y = r + margin;
+            const x = (c + margin) * cellSize;
+            const y = (r + margin) * cellSize;
             const isFinder = (r < 7 && c < 7) || (r < 7 && c >= size - 7) || (r >= size - 7 && c < 7);
 
             if (isFinder || currentDotStyle === 'square') {
-              shapes += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${fillAttr}"/>`;
+              ctx.fillRect(x, y, cellSize + 0.6, cellSize + 0.6);
             } else if (currentDotStyle === 'dots') {
-              shapes += `<circle cx="${x + 0.5}" cy="${y + 0.5}" r="0.45" fill="${fillAttr}"/>`;
+              ctx.beginPath();
+              ctx.arc(x + cellSize / 2, y + cellSize / 2, (cellSize / 2) * 0.9, 0, Math.PI * 2);
+              ctx.fill();
             } else if (currentDotStyle === 'rounded') {
-              shapes += `<rect x="${x}" y="${y}" width="1" height="1" rx="0.3" fill="${fillAttr}"/>`;
+              const rad = cellSize * 0.35;
+              ctx.beginPath();
+              if (ctx.roundRect) ctx.roundRect(x, y, cellSize, cellSize, rad);
+              else ctx.rect(x, y, cellSize, cellSize);
+              ctx.fill();
             }
           }
         }
       }
+    }
 
-      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="100%" height="100%">
-  ${defs}
-  <rect width="${total}" height="${total}" fill="${bg}"/>
-  ${shapes}
-</svg>`;
+    function renderActiveQr() {
+      const payload = getActivePayload();
+      const canvas = document.getElementById('qr-canvas');
+      const fg = document.getElementById('qr-color-dark').value;
+      const bg = document.getElementById('qr-color-light').value;
 
-      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      renderQrMatrix(canvas, payload, { fg: fg, bg: bg });
+
+      // Update Card Text
+      if (currentMode === 'wifi') {
+        const ssid = document.getElementById('wifi-ssid').value.trim() || 'My_Network';
+        document.getElementById('card-title-text').innerText = ssid;
+        document.getElementById('card-subtitle-text').innerText = 'Point camera to join automatically';
+      } else if (currentMode === 'url') {
+        const url = document.getElementById('simple-url').value.trim() || 'https://...';
+        document.getElementById('card-title-text').innerText = url.replace(/^https?:\/\//, '');
+        document.getElementById('card-subtitle-text').innerText = 'Scan to open website';
+      }
+    }
+
+    function downloadPng(res = 1200) {
+      const payload = getActivePayload();
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = res;
+      exportCanvas.height = res;
+      const fg = document.getElementById('qr-color-dark').value;
+      const bg = document.getElementById('qr-color-light').value;
+
+      renderQrMatrix(exportCanvas, payload, { fg: fg, bg: bg });
+
       const link = document.createElement('a');
-      link.download = `qr-vault-${Date.now()}.svg`;
-      link.href = URL.createObjectURL(blob);
+      link.download = `wifi-qr-${Date.now()}.png`;
+      link.href = exportCanvas.toDataURL('image/png');
       link.click();
-      showToast("Downloaded True Vector SVG!");
+      showToast("Downloaded Wi-Fi QR Card!");
     }
 
     async function copyQrImageToClipboard() {
@@ -903,222 +543,54 @@ wifi-guest,WIFI:S:GuestWiFi;T:WPA;P:guest123;;"></textarea>
           ]);
           btn.innerText = '✅ Copied!';
           setTimeout(() => btn.innerText = '📋 Copy Image', 2000);
-          showToast("QR Code image copied to clipboard!");
+          showToast("Image copied to clipboard!");
         });
       } catch (err) {
-        showToast("Clipboard copy failed", "error");
+        showToast("Copy failed in this browser", "error");
       }
     }
 
-    /* Print Flyer */
-    function openPrintFlyerModal() {
-      document.getElementById('modal-flyer').classList.remove('hidden');
-    }
-    function closePrintFlyerModal() {
-      document.getElementById('modal-flyer').classList.add('hidden');
-    }
     function triggerPrintFlyer() {
-      document.getElementById('p-headline').innerText = document.getElementById('flyer-headline').value;
-      document.getElementById('p-subtitle').innerText = document.getElementById('flyer-subtitle').value;
+      const ssid = document.getElementById('wifi-ssid').value.trim() || 'Wi-Fi Network';
+      const pw = document.getElementById('wifi-pw').value;
+      document.getElementById('p-ssid').innerText = ssid;
+      document.getElementById('p-pw').innerText = pw || '(None / Open Network)';
       document.getElementById('p-img').src = document.getElementById('qr-canvas').toDataURL('image/png');
-      closePrintFlyerModal();
+
       document.getElementById('print-area').classList.remove('hidden');
       window.print();
       document.getElementById('print-area').classList.add('hidden');
     }
 
-    /* ========================================================
-       BULK BATCH GENERATOR ENGINE
-       ======================================================== */
-    async function generateBulkQrs() {
-      const raw = document.getElementById('bulk-input').value.trim();
-      if (!raw) {
-        alert("Please paste items to generate!");
-        return;
-      }
-
-      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-      const grid = document.getElementById('bulk-results-grid');
-      grid.innerHTML = '';
-      bulkGeneratedBlobs = [];
-
-      document.getElementById('bulk-count').innerText = lines.length;
-      document.getElementById('bulk-actions-bar').classList.remove('hidden');
-
-      for (let i = 0; i < lines.length; i++) {
-        let name = `qr-${i + 1}`;
-        let payload = lines[i];
-
-        if (lines[i].includes(',')) {
-          const parts = lines[i].split(',');
-          name = parts[0].trim();
-          payload = parts.slice(1).join(',').trim();
-        }
-
-        const card = document.createElement('div');
-        card.className = "bg-appDark border border-borderDark rounded-xl p-3 flex flex-col items-center justify-between text-center";
-        
-        const canvas = document.createElement('canvas');
-        canvas.width = 400;
-        canvas.height = 400;
-        canvas.className = "w-full aspect-square rounded mb-2 bg-white p-1";
-        
-        renderQrMatrixToCanvas(canvas, payload, {
-          ecl: 'M',
-          color1: '#000000',
-          color2: '#000000',
-          bg: '#ffffff',
-          dotStyle: 'square',
-          centerIcon: 'none'
-        });
-
-        // Store for ZIP
-        canvas.toBlob(blob => {
-          bulkGeneratedBlobs.push({ name: `${name}.png`, blob: blob });
-        });
-
-        const label = document.createElement('div');
-        label.className = "text-[11px] font-bold text-white truncate max-w-full";
-        label.innerText = name;
-
-        card.appendChild(canvas);
-        card.appendChild(label);
-        grid.appendChild(card);
-      }
-
-      showToast(`Generated ${lines.length} bulk QR codes!`);
-    }
-
-    async function downloadBulkZip() {
-      if (bulkGeneratedBlobs.length === 0) return;
-      const zip = new JSZip();
-      bulkGeneratedBlobs.forEach(item => {
-        zip.file(item.name, item.blob);
-      });
-
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const link = document.createElement('a');
-      link.download = `qr-vault-batch-${Date.now()}.zip`;
-      link.href = URL.createObjectURL(zipBlob);
-      link.click();
-      showToast("Downloaded all QR codes in ZIP archive!");
-    }
-
-
-    /* ========================================================
-       OFFLINE QR SCANNER ENGINE
-       ======================================================== */
-    let cameraStream = null;
-    let cameraScanning = false;
-
-    function setScannerMode(mode) {
-      document.getElementById('scan-file-container').classList.toggle('hidden', mode !== 'file');
-      document.getElementById('scan-camera-container').classList.toggle('hidden', mode !== 'camera');
-      document.getElementById('btn-scan-file').className = mode === 'file' ? 'px-4 py-2 rounded-xl bg-brandGreen text-black transition' : 'px-4 py-2 rounded-xl bg-cardDark text-slate-300 hover:text-white transition';
-      document.getElementById('btn-scan-camera').className = mode === 'camera' ? 'px-4 py-2 rounded-xl bg-brandGreen text-black transition' : 'px-4 py-2 rounded-xl bg-cardDark text-slate-300 hover:text-white transition';
-
-      if (mode === 'camera') startCamera();
-      else stopCamera();
-    }
-
-    function handleScannerImage(e) {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imgData.data, imgData.width, imgData.height);
-
-            if (code) {
-              displayScanResult(code.data);
-            } else {
-              alert("No valid QR code detected in this image. Try a clearer or higher resolution image.");
-            }
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    async function startCamera() {
-      try {
-        const video = document.getElementById('camera-video');
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        video.srcObject = cameraStream;
-        video.setAttribute('playsinline', true);
-        video.play();
-        cameraScanning = true;
-        requestAnimationFrame(tickCamera);
-      } catch (err) {
-        alert("Camera access denied or unavailable.");
-        setScannerMode('file');
-      }
-    }
-
-    function stopCamera() {
-      cameraScanning = false;
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(t => t.stop());
-        cameraStream = null;
-      }
-    }
-
-    function tickCamera() {
-      if (!cameraScanning) return;
-      const video = document.getElementById('camera-video');
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imgData.data, imgData.width, imgData.height);
-
-        if (code) {
-          stopCamera();
-          displayScanResult(code.data);
-          return;
-        }
-      }
-      requestAnimationFrame(tickCamera);
-    }
-
-    function displayScanResult(payload) {
-      document.getElementById('scan-result-box').classList.remove('hidden');
-      document.getElementById('decoded-payload-text').innerText = payload;
-
-      const actionBtn = document.getElementById('decoded-action-btn');
-      actionBtn.innerHTML = '';
-
-      if (payload.startsWith('http://') || payload.startsWith('https://')) {
-        actionBtn.innerHTML = `<a href="${payload}" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brandGreen text-black font-bold text-xs hover:bg-emerald-400 transition"><span>🌐</span> Open Link in New Tab</a>`;
-      } else if (payload.startsWith('WIFI:')) {
-        actionBtn.innerHTML = `<span class="text-xs text-brandCyan font-bold">📶 Detected Wi-Fi Network Credentials</span>`;
-      }
-
-      showToast("QR Code successfully decoded!");
-    }
-
-    function copyDecodedText() {
-      const text = document.getElementById('decoded-payload-text').innerText;
-      if (text) {
-        navigator.clipboard.writeText(text);
-        showToast("Decoded content copied!");
-      }
-    }
-
-    // Launch immediately on page load
+    // Auto-Detect / Auto-Load on startup
     window.addEventListener('DOMContentLoaded', () => {
-      updateQr();
+      // 1. Check URL parameters: ?ssid=...&pw=...
+      const params = new URLSearchParams(window.location.search);
+      const urlSsid = params.get('ssid');
+      const urlPw = params.get('pw');
+      const urlType = params.get('type');
+
+      // 2. Check local storage memory
+      let savedSsid = null;
+      let savedPw = null;
+      try {
+        savedSsid = localStorage.getItem('qr_vault_wifi_ssid');
+        savedPw = localStorage.getItem('qr_vault_wifi_pw');
+      } catch(e) {}
+
+      const activeSsid = urlSsid || savedSsid || 'My_Home_WiFi';
+      const activePw = urlPw || savedPw || '';
+
+      document.getElementById('wifi-ssid').value = activeSsid;
+      document.getElementById('wifi-pw').value = activePw;
+
+      if (urlSsid || savedSsid) {
+        document.getElementById('detected-ssid-name').innerText = activeSsid;
+        document.getElementById('auto-detect-banner').classList.remove('hidden');
+      }
+
+      if (urlType === 'url') setSimpleMode('url');
+      else setSimpleMode('wifi');
     });
   </script>
 </body>
